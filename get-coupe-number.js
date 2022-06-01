@@ -11,3 +11,5 @@ function getCoupeNumber(number) {
       return (Math.ceil(number / 4));
     }
 }
+
+getCoupeNumber(23)
