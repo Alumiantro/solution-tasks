@@ -43,67 +43,59 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     promoGenre.textContent = 'драма'
     promoBg.style.background = 'url(img/bg.jpg) top center / cover no-repeat'
-    movies.sort()
-    promoList.innerHTML = ''
-    movies.forEach((item, index) => {
-        promoList.innerHTML +=
-            `<li class="promo__interactive-item">${index + 1} ${item}
-            <div class="delete"></div>
-        </li>`
+
+    const form = document.querySelector('.add')
+    const favouriteFilm = document.getElementById('fav_film')
+    // const basketForDelete = document.querySelectorAll('.delete')
+
+    form.addEventListener('submit', function addedValue(event) {
+        event.preventDefault();
+        let newFilm = document.getElementById('get_val').value;
+
+        if (newFilm) {
+            if (newFilm.length > 21) {
+                promoList.innerHTML +=
+                newFilm = `${newFilm.substring(0, 21)}...`
+            }
+    
+            if (favouriteFilm.checked) {
+                console.log('Добавляем любимый фильм')
+            }
+
+            movieDB.movies.push(newFilm)
+            sortArr(movieDB.movies)
+            createNewList(promoList, movieDB.movies)
+            event.target.reset()
+        }
     })
 
-    const formButton = document.getElementById('add_val')
-    const favouriteFilm = document.getElementById('fav_film')
-    const basketForDelete = document.querySelectorAll('.delete')
-
-    formButton.addEventListener('click', addedValue)
-    // favouriteFilm.addEventListener('click', addedFav)
-
-
-    function addedValue(event) {
-        event.preventDefault();
-        const input = document.getElementById('get_val').value;
-
-        if (input.length > 21) {
-            promoList.innerHTML +=
-                `<li class="promo__interactive-item">${+promoList.lastChild.textContent[0] + 1} ${input.slice(0, 21)}...
-            <div class="delete"></div>
-            </li>`
-        } else {
-            promoList.innerHTML +=
-                `<li class="promo__interactive-item">${+promoList.lastChild.textContent[0] + 1} ${input}
-            <div class="delete"></div>
-            </li>`
-        }
-
-        if (favouriteFilm.checked) {
-            console.log('Добавляем любимый фильм')
-        }
+    function sortArr(arr) {
+        arr.sort()
     }
 
-    basketForDelete.forEach((item, index) => {
-        item.addEventListener('click', function deleteFilm() {
-            promoList.childNodes[index].remove()
+    function createNewList(parent, arr) {
+        parent.innerHTML = '';
+
+        arr.forEach((item, index) => {
+            parent.innerHTML +=
+                `<li class="promo__interactive-item">${index + 1} ${item}
+                <div class="delete"></div>
+            </li>`
         })
-    })
 
-    // console.log(movies.sort())
-    // console.log(promoList)
-    // promoList.forEach((item) => {
-    //     item.sort()
-    // })
+        document.querySelectorAll('.delete').forEach((btn, i) => {
+            btn.addEventListener('click', () => {
+                btn.parentElement.remove();
+                movieDB.movies.splice(i, 1);
+
+                createNewList(promoList, movieDB.movies)
+            });
+        });
+    }
+
+    createNewList(promoList, movieDB.movies)
 })
 
+//Пошагово: был сначала список на странице (и внутри элементы с delete), потом мы добавили в новый фильм и этот список полностью пересоздался на странице. То есть те элементы, на которых висели обработчики просто исчезли. На их месте появились новые, уже без них. Это в случае, когда мы элементы помещаем в переменную, ведь переменная принимает значение только один раз.
 
-//touchstart
-//touchmove 
-
-document.addEventListener('DOMContentLoader', () => {
-    const box = document.querySelector('.box');
-
-    box.addEventListener('touchstart', (e) => {
-        e.preventDefault()
-
-        console.log("start")
-    })
-})
+// А вот когда мы используем конструкцию document.querySelectorAll('.delete), то эти элементы каждый раз на странице находятся по этому селектору и даже если появились новые элементы - событие все равно повесится.
